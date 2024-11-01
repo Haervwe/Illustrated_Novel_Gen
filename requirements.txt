@@ -1,0 +1,8 @@
+autogen_core==0.0.2
+autogen_ext==0.0.1
+ipython==8.12.3
+Pillow==11.0.0
+pydantic==2.9.2
+reportlab==4.2.5
+Requests==2.32.3
+rich==13.9.4
