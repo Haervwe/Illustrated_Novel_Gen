@@ -81,46 +81,7 @@ By studying and experimenting with this project, users can gain valuable insight
 
 ## Running the Code
 
-To embark on your own illustrated novel generation journey, follow these steps:
-
-1. **Open a Terminal:** On your local machine, open your terminal or command line interface.
-
-2. **Clone the Repository:**
-   ```bash
-   git clone [invalid URL removed]
-   cd illustrated-novel-generation
-Use code with caution.
-
-Create a Virtual Environment: Isolate your project dependencies using either venv or conda:
-
-Using venv:
-Bash
-python -m venv venv 
-Use code with caution.
-
-Using conda:
-Bash
-conda create -n illustrated-novel-env python=3.8
-Use code with caution.
-
-Activate the Virtual Environment:
-
-For venv:
-Bash
-source venv/bin/activate  # On macOS/Linux
-.\venv\Scripts\activate  # On Windows
-Use code with caution.
-
-For conda:
-Bash
-conda activate illustrated-novel-env
-Use code with caution.
-
-Install the Required Packages:
-
-Bash
-pip install -r requirements.txt
-Use code with caution.
+TODO
 
 Run the Application: Follow the specific instructions within the codebase to start the application and provide your inspiring story prompt. Let the creative exploration begin!
 
