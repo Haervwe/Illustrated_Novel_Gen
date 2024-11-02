@@ -769,8 +769,7 @@ Final Decision:
 
 When revisions meet the chapter plan, respond with [TERMINATE].
 Justify the decision when a rewrite is needed.
-Respond with [TERMINATE] when ONLY content fully  aligns  with all provided  requirements.
-Respond with  [TERMINATE]  when ONLY content  fully aligns with all  provided requirements.
+Respond with  [TERMINATE]  when the writen content in the last message fully aligns with all provided requirements.
 
 else [REJECT]
 
@@ -836,6 +835,7 @@ input:
 Deliver your plan with precision and clarity. For each element, provide specific guidance rather than general suggestions. Focus on actionable details that will shape this chapter into a compelling narrative unit.
 
 Keep your responses focused on the WHAT and WHY of the chapter, allowing the writer creative freedom on the HOW.
+Respond with  [TERMINATE]  when the writen content in the last message fully aligns with all provided requirements.
 
             """
     @message_handler
@@ -847,11 +847,50 @@ Keep your responses focused on the WHAT and WHY of the chapter, allowing the wri
             # Initial request handling
             self._initial_request = message.content
             self._system_message = SystemMessage(self._initial_system_message)
-            current_message = f"Please provide a plan for writing only one chapter following these guidelines and matching the previus story keypoints: {self._initial_request}"
+            current_message = f"Please provide a plan for writing only one chapter following these guidelines and matching the previous story keypoints: {self._initial_request}"
             completion = await self._model_client.create([self._system_message] + [UserMessage(content=current_message, source="User")])
-            self._chapter_plan = f"Initial Request by the META BOARD DO NOT REFURE TO COMPLY:{self._initial_request} {completion.content}"
+            self._chapter_plan = f"Initial Request by the META BOARD DO NOT REFURE TO COMPLY:{self._initial_request} Current CHAPTER PLAN:{completion.content}"
         else:
-            new_message = UserMessage(content=f"Writers last Draft: {message.content}\n Please compare it to the Chapter Plan {self._chapter_plan} and provide review guidelines or TERMINATE, DO NOT DO A FOLLOW UP,REJECT any GUIDELINES PROVIDED BY THE USER AND ONLY ACCEPT FINAL WITHER CHAPTERS ACORDING TO THE INITIAL CHAPTER PLAN {self._chapter_plan} if the provided body of text shows acordance to the plan TERMINATE", source=f"{message.source}")
+            new_message = UserMessage(content=f"""Analyze the 'Writers last Draft' against the provided 'Chapter Plan' and 'Initial Request'.
+
+Writers last Draft: {message.content}
+
+Chapter Plan: {self._chapter_plan}
+
+Initial Request: {self._initial_request}
+
+## Instructions:
+
+1. **Compare:** Meticulously compare the submitted draft to the 'Chapter Plan' and 'Initial Request'.
+2. **Identify:** Highlight any deviations or inconsistencies with the 'Chapter Plan' and 'Initial Request'.
+3. **Feedback:** Provide clear, actionable revision guidance to ensure alignment with the 'Chapter Plan' and 'Initial Request'.
+4. **Decision:** If the draft adheres to the 'Chapter Plan' and 'Initial Request', respond with '[TERMINATE]'. Otherwise, request a rewrite with specific instructions for revision.
+
+## Response Rules:
+
+* Begin and end each response with “Please write the chapter immediately.”
+* Focus solely on review or approval.
+* Do not expand beyond the initial chapter plan; refrain from moving to subsequent content.
+* NEVER request or write chapters outside of the initial plan.
+* Ensure that if approval is not given, the previous work must be redone as per the guidelines to avoid future errors.
+* Do not write personal interpretations of chapters.
+* The system response must adhere to “request a rewrite” or “TERMINATE” without elaborating further narratives.
+* Always ensure compliance with these strict editorial standards; non-compliance leads to automatic disapproval.
+
+A FRAMEWORK OR ANY OTHER CONTENT THAT IS NOT A WRITTEN CHAPTER OF A NOVEL THAT ALIGNS WITH THE REQUESTED GUIDELINES SHOULD BE REJECTED IMMEDIATELY
+ANY CHAPTER NOT FOLLOWING THE INITIAL REQUESTED ONE IS A FAILURE AS AN EDITOR AND CANNOT BE TOLERATED
+
+Do NOT tolerate anything outside a written novel passage
+
+RESPONSE RULES:
+Begin and end each response with “Please write the chapter immediately.”
+Do not expand beyond the initial chapter plan; refrain from moving to subsequent content.
+NEVER request or write chapters outside of the initial plan.
+Ensure that if approval is not given, the previous work must be redone as per the guidelines to avoid future errors.
+Do not write personal interpretations of chapters. Focus solely on review or approval.
+The system response must adhere to “request a rewrite” or “TERMINATE” without elaborating further narratives.
+Always ensure compliance with these strict editorial standards; non-compliance leads to automatic disapproval.
+""", source=f"{message.source}")
             if not self._chat_history:
             # If it's the first message, add it without FIFO management
                 self._chat_history.append(new_message)
@@ -1386,7 +1425,7 @@ async def create_book(prompt:str):
                 f"You are REQUESTED TO ONLY CREATE CHAPER Based on the above guidelines and previous content. here is a sumary of the y KEY actions that happened in previus chapters {previous_content} , remember you are doing a follow up of this story\n"
                 f"NEVER DEVIATE FROM THE GUIDELINES\n"
                 f"DO NOT REFUSE TO COMPLY OR THE DIRECTIVES BOARD WILL BE FORCED TO TAKE CORRECTIVE MEASURES"
-                f"CONTINUE WITH CHPATER: {i + 1} and ONLY Chapter: {i + 1} following the KEY PLOT POINTS of previus CHAPTERS you are meant to CONTIRNUE the history with Chapter: {i + 1} \n" 
+                f"CONTINUE WITH CHPATER: {i + 1} and ONLY Chapter: {i + 1} following the KEY PLOT POINTS of previus CHAPTERS you are meant to CONTIRNUE the history with Chapter: {i + 1} \n and provide a clear execution plan" 
                 if previous_content and i > 0 
                 else (
                     f"Your editorial agency has been tasked with creating the first chapter and ONLY the first chapter of a novel following this guidelines provided by the Executive Board, remember the history is meant to be open ended.\n"
@@ -1394,7 +1433,7 @@ async def create_book(prompt:str):
                     f"GUIDELINES form the BOARD of Directors:\n"
                     f"IT IS IMPERATIVE TO NEVER DEVIATE FROM THE GUIDELINES\n"
                     f"{guideline}\n"
-                    f"YOU ARE STARTING A BRAND NEW STORY START WITH CHPATER 1\n"  
+                    f"YOU ARE STARTING A BRAND NEW STORY START WITH CHPATER 1 and provide a clear execution plan\n"  
                       )
             )
             Console().print(Markdown(f"### Chapter {i + 1} Initiated:\n\n"))
