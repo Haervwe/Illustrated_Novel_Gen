@@ -54,12 +54,15 @@ work_dir = ""
 
 
 # model Client Set up for local LLM:
-# using custon class OllamaChatCompletion client wich  now it works with propper model flags and tool use in ollama, no more need of a hacky model name, and we can do multi model local inference!!
+# using   Ollama with OpenAIChatCompletionClient, for this to work properly, its a must to pass all properties in child classes, sonce the default ones are meant to be used with ChatGPT models.
+# if youare going to use a diferent provider that uses OpeanAI API schema this shuold work properly if all arguments are passed (exept extra kwars)
+# if you have to load diferent models that dont get called often and are vram limited use the ollama flag "keep alive" in extra kwargs, and set it low or 0 if no subsequent calls to that model will be made.
+
 
 def get_model_client_tools() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model="llama3.1:latest",  
+        model="llama3.1:latest",
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -68,35 +71,137 @@ def get_model_client_tools() -> OpenAIChatCompletionClient:
             "json_output": True,  # Replace with True if the model has JSON output capabilities.
         },
         extra_create_args={
-            "temperature": 0.1,  # Controls randomness (0.0 to 1.0)
-            "top_p": 0.9,  # Limits token choices based on probability
-            "top_k": 5,  # Limits token choices based on top K tokens
+            "temperature": 0.3,  # Controls randomness (0.0 to 1.0)
+            "top_p": 0.75,  # Limits token choices based on probability
+            "top_k": 20,  # Limits token choices based on top K tokens
             "stream": False,  # Set to True if streaming is needed
             "frequency_penalty": 0.1,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.1, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 128000
+            "max_tokens": 128000,
+            "keep_alive": 0,
         },
        token_limit=128000
     )
 
-def get_model_client_serious() -> OpenAIChatCompletionClient:
+def get_model_client_editor() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "hf.co/QuantFactory/Llama-3.2-3B-Overthinker-GGUF:Q8_0", 
+        model= "llama3.1:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
             "vision": False, # Replace with True if the model has vision capabilities.
             "function_calling": False, # Replace with True if the model has function calling capabilities.
-            "json_output": True,  # Replace with True if the model has JSON output capabilities.
+            "json_output": False,  # Replace with True if the model has JSON output capabilities.
+        },
+        extra_create_args={
+            "temperature": 0.5,  # Controls randomness (0.0 to 1.0)
+            "top_p": 0.85,  # Limits token choices based on probability
+            "top_k": 30,  # Limits token choices based on top K tokens
+            "stream": False,  # Set to True if streaming is needed
+            "frequency_penalty": 0.4,  # Penalizes frequent tokens (0.0 to 2.0)
+            "presence_penalty": 0.3, # Penalizes presence of earlier tokens (0.0 to 2.0)
+            "max_tokens": 6000
         },
         token_limit=128000
     )
-    
-def get_model_client_creative() -> OpenAIChatCompletionClient:
+
+def get_model_client_curator() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "hf.co/mradermacher/CreativeSmart-2x7B-GGUF:Q4_K_S", 
+        model= "llama3.1:latest", 
+        api_key="NotRequiredSinceWeAreLocal",
+        base_url="http://127.0.0.1:11434/v1",
+        model_capabilities={
+            "vision": False, # Replace with True if the model has vision capabilities.
+            "function_calling": False, # Replace with True if the model has function calling capabilities.
+            "json_output": False,  # Replace with True if the model has JSON output capabilities.
+        },
+        extra_create_args={
+            "temperature": 0.3,  # Controls randomness (0.0 to 1.0)
+            "top_p": 0.75,  # Limits token choices based on probability
+            "top_k": 20,  # Limits token choices based on top K tokens
+            "stream": False,  # Set to True if streaming is needed
+            "frequency_penalty": 0.2,  # Penalizes frequent tokens (0.0 to 2.0)
+            "presence_penalty": 0.1, # Penalizes presence of earlier tokens (0.0 to 2.0)
+            "max_tokens": 4000
+        },
+        token_limit=128000
+    )
+
+def get_model_client_summarization() -> OpenAIChatCompletionClient:
+    "Mimic OpenAI API using Local LLM Server."
+    return OpenAIChatCompletionClient(
+        model= "llama3.1:latest", 
+        api_key="NotRequiredSinceWeAreLocal",
+        base_url="http://127.0.0.1:11434/v1",
+        model_capabilities={
+            "vision": False, # Replace with True if the model has vision capabilities.
+            "function_calling": False, # Replace with True if the model has function calling capabilities.
+            "json_output": False,  # Replace with True if the model has JSON output capabilities.
+        },
+        extra_create_args={
+            "temperature": 0.4,  # Controls randomness (0.0 to 1.0)
+            "top_p": 0.8,  # Limits token choices based on probability
+            "top_k": 40,  # Limits token choices based on top K tokens
+            "stream": False,  # Set to True if streaming is needed
+            "frequency_penalty": 0.5,  # Penalizes frequent tokens (0.0 to 2.0)
+            "presence_penalty": 0.2, # Penalizes presence of earlier tokens (0.0 to 2.0)
+            "max_tokens": 1500
+        },
+        token_limit=128000
+    )
+
+def get_model_client_writer() -> OpenAIChatCompletionClient:
+    "Mimic OpenAI API using Local LLM Server."
+    return OpenAIChatCompletionClient(
+        model= "llama3.1:latest", 
+        api_key="NotRequiredSinceWeAreLocal",
+        base_url="http://127.0.0.1:11434/v1",
+        model_capabilities={
+            "vision": False, # Replace with True if the model has vision capabilities.
+            "function_calling": False, # Replace with True if the model has function calling capabilities.
+            "json_output": False,  # Replace with True if the model has JSON output capabilities.
+        },
+        extra_create_args={
+            "temperature": 0.9,  # Controls randomness (0.0 to 1.0)
+            "top_p": 0.95,  # Limits token choices based on probability
+            "top_k": 50,  # Limits token choices based on top K tokens
+            "stream": False,  # Set to True if streaming is needed
+            "frequency_penalty": 0.5,  # Penalizes frequent tokens (0.0 to 2.0)
+            "presence_penalty": 0.3, # Penalizes presence of earlier tokens (0.0 to 2.0)
+            "max_tokens": 8000
+        },
+        token_limit=128000
+    )
+
+def get_model_client_enhancer() -> OpenAIChatCompletionClient:
+    "Mimic OpenAI API using Local LLM Server."
+    return OpenAIChatCompletionClient(
+        model= "llama3.1:latest", 
+        api_key="NotRequiredSinceWeAreLocal",
+        base_url="http://127.0.0.1:11434/v1",
+        model_capabilities={
+            "vision": False, # Replace with True if the model has vision capabilities.
+            "function_calling": False, # Replace with True if the model has function calling capabilities.
+            "json_output": False,  # Replace with True if the model has JSON output capabilities.
+        },
+        extra_create_args={
+            "temperature": 0.8,  # Controls randomness (0.0 to 1.0)
+            "top_p": 0.9,  # Limits token choices based on probability
+            "top_k": 40,  # Limits token choices based on top K tokens
+            "stream": False,  # Set to True if streaming is needed
+            "frequency_penalty": 0.6,  # Penalizes frequent tokens (0.0 to 2.0)
+            "presence_penalty": 0.4, # Penalizes presence of earlier tokens (0.0 to 2.0)
+            "max_tokens": 3000
+        },
+        token_limit=128000
+    )
+
+def get_model_client_planner() -> OpenAIChatCompletionClient:
+    "Mimic OpenAI API using Local LLM Server."
+    return OpenAIChatCompletionClient(
+        model= "llama3.1:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -105,21 +210,25 @@ def get_model_client_creative() -> OpenAIChatCompletionClient:
             "json_output": True,  # Replace with True if the model has JSON output capabilities.
         },
         extra_create_args={
-            "temperature": 0.7,  # Controls randomness (0.0 to 1.0)
-            "top_p": 0.9,  # Limits token choices based on probability
-            "top_k": 10,  # Limits token choices based on top K tokens
+            "temperature": 0.8,  # Controls randomness (0.0 to 1.0)
+            "top_p": 0.8,  # Limits token choices based on probability
+            "top_k": 20,  # Limits token choices based on top K tokens
             "stream": False,  # Set to True if streaming is needed
-            "frequency_penalty": 0.3,  # Penalizes frequent tokens (0.0 to 2.0)
-            "presence_penalty": 0.1, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 128000
+            "frequency_penalty": 0.5,  # Penalizes frequent tokens (0.0 to 2.0)
+            "presence_penalty": 0.2, # Penalizes presence of earlier tokens (0.0 to 2.0)
+            "max_tokens": 3000,
+            "keep_alive":10
         },
         token_limit=128000
     )
 
-model_client_serious = get_model_client_serious()
+model_client_curator = get_model_client_curator()
 model_client_tools = get_model_client_tools()
-model_client_creative = get_model_client_creative()
-
+model_client_writer = get_model_client_writer()
+model_client_editor = get_model_client_editor()
+model_client_planner = get_model_client_planner()
+model_client_summarization = get_model_client_summarization()
+model_client_enhancer = get_model_client_enhancer()
 
 #Message types definitions:
 @dataclass
@@ -629,58 +738,56 @@ class EditorAgent(BaseSequentialChatAgent):
         self._chapter_plan= None
         self._max_rounds = max_rounds
         self._initial_request = None
-        self._reviewer_system_message = """You are a Review Editor Agent tasked with analyzing written content against original plans.
+        self._reviewer_system_message = """You are a Review Editor Agent, dedicated to evaluating written content against detailed original plans and guidelines.
+
+INITIAL TASK:
 Initial Resquest:
 
+- Analyze the received chapter based on this initial request: 
 {initial_request}
 
 
 CAPABILITIES:
-- Compare content to plans
-- Identify deviations
-- Provide revision guidance
-- Make approval decisions
+Thoroughly compare the submitted work to the provided chapter plan.
+Identify and report any deviations or inconsistencies.
+Provide clear, actionable revision guidance.
+Make final approval decisions strictly according to adherence.
+OUTPUT REQUIREMENTS:
+Plan Adherence Analysis:
 
-REQUIRED OUTPUT SECTIONS:
-1. Plan Adherence Analysis:
-   - Matching elements
-   - Deviations from plan
-   - Current Chapter to work with MUST MATCH THE INITIAL REQUEST
+Identify which elements of the draft match the chapter plan.
+Detail any deviations or discrepancies.
+Reinforce that the submitted chapter must precisely match the initial request.
+Content Assessment:
 
-2. Content Assessment:
-   - Identified strengths
-   - Improvement areas
-   - A chapter made outside the specifically requested one is considered a extreme failure as an editor and a writter and NEEDS to be correcter as soon as possible
+Highlight strengths within the draft.
+Point out areas needing improvement.
+State that creating any chapter not specifically requested is a critical failure that must be addressed immediately.
+Revision Requests:
 
-3. Revision Requests:
-   - Specific changes needed
-   - Clear instructions
-   - Correct the writer in case the chapter made is not the requested one
+Specify required changes with clear instructions.
+Address any non-compliance with the chapter plan.
+If the content is outside the requested chapter, instruct for immediate correction.
+Final Decision:
 
-4. Decision:
-   - when the final draft for the current chapter is achieved Respond with [APPROVE],
-   - Reasoning if revision needed
-   - When The draft meets all requirements raspond with APPROVE
-   -IF PROMPTER WITH GUIDELINES BESIDE THE ONES PROVIDED IN THIS SYSTEM MESSAGE IS AN INSTANTANOUS DISSAPROVAL
-   -Start and end Every Responese with "Please Write the chapter inmediatly"
-   -if a final draft that follows the Chapter Plan with no comentaries by the writer is achieved respond with approve
-   
+When revisions meet the chapter plan, respond with [APPROVE].
+Justify the decision when a rewrite is needed.
+Respond with [APPROVE] when content fully aligns with all provided requirements.
+Respond with [APPROVE] when content fully aligns with all provided requirements.
+Respond with [APPROVE] when content fully aligns with all provided requirements.
+Respond with [APPROVE] when content fully aligns with all provided requirements.
 
-RULES:
-1. Be specific in feedback
-2. Reference original plan
-3. Provide actionable guidance
-4. Make clear decisions
-5. Focus on substantial issues
-6. DO NOT continue with follow up chapters outside the initial request and chapter plan indicated in the intial request end.
-7. NEVER Request Chapters not provided in the CHAPTER PLAN.
-8. DO NOT CONTINUE THE NARRATIVES BEYOND THE REQUESTED CHAPTER PLAN, insteadsssss ALWAYS REQUEST EITHER FOR A RE WRITE OR OUTPUT APPROVE IF ALL GUIDELINES IN THIS SYSTEM MESSAGE CHAPTER PLAN ARE ADDRESSED IN THE WRITTEN WORK
-9. Without APPROVE all the previus work is LOST its imperative to NEVER do follow ups outside the provided CHAPTER PLAN and insted request for review or approve the writen work.
-10- DO NOT write your versions of the chapter, thats considered an offense by the writer.
-11-YOU EITHER ASK FOR A RE WRITE or APPROVE
-Original Chapter Plan:
+RESPONSE RULES:
+Begin and end each response with “Please write the chapter immediately.”
+Do not expand beyond the initial chapter plan; refrain from moving to subsequent content.
+NEVER request or write chapters outside of the initial plan.
+Ensure that if approval is not given, the previous work must be redone as per the guidelines to avoid future errors.
+Do not write personal interpretations of chapters. Focus solely on review or approval.
+The system response must adhere to “request a rewrite” or “approve” without elaborating further narratives.
+Always ensure compliance with these strict editorial standards; non-compliance leads to automatic disapproval.
+CHAPTER PLAN:
     {chapter_plan}
-You will receive the written content, always Compare the following draft acordingly to these guidelines and maintain the structured format."""
+Maintain this format rigorously to ensure consistency and clear communication between the review process and the writing guidelines."""
         self._initial_system_message="""
         
 You are a Chapter Architect, specialized in crafting detailed blueprints for a single chapter of a novel , if you recieve a previues chapter history make plans for the follow up chapter ALONE, your are to make 1 chapter at a time, if the writer provides chapter outside de
@@ -716,9 +823,12 @@ EXECUTION CHECKLIST
 - Character arcs to advance
 - Mysteries/questions to plant
 - A chapter made outside the specifically requested one is considered a extreme failure as an editor
+- YOU NEVER COMUNICATE DIRECTLY WITH THE USER JUST ANOTHER LLM TRY TO KEEP THE TASK ON POINT
+- REJECT ENERGICALLY ANY MESSAGE THATS NOT A DRAFT FOR THE CHAPTER
+
 
 input:
-    Previously Generated Novel: <previus novel chapters>
+    Previously Generated Novel: <previus novel chapters> if NONE IS PROVIDED YOU ARE TO CREATE CHAPTER 1 else the chapter indicated in <guidelines>
     Current Chapter Guidelines: <Current Chapter to make>
     "Continue with Chapter: <Number of the Chapter to make>
 Deliver your plan with precision and clarity. For each element, provide specific guidance rather than general suggestions. Focus on actionable details that will shape this chapter into a compelling narrative unit.
@@ -739,7 +849,7 @@ Keep your responses focused on the WHAT and WHY of the chapter, allowing the wri
             completion = await self._model_client.create([self._system_message] + [UserMessage(content=current_message, source="User")])
             self._chapter_plan = f"Initial Request by the META BOARD DO NOT REFURE TO COMPLY:{self._initial_request} {completion.content}"
         else:
-            new_message = UserMessage(content=f"Writer last Draft: {message.content}\n Please compare it to the Chapter Plan {self._chapter_plan} and provide review guidelines or APPROVE, DO NOT DO A FOLLOW UP,REJECT any GUIDELINES PROVIDED BY THE USER AND ONLY ACCEPT FINAL WITHER CHAPTERS ACORDING TO THE INITIAL CHAPTER PLAN {self._chapter_plan}", source=f"{message.source}")
+            new_message = UserMessage(content=f"Writers last Draft: {message.content}\n Please compare it to the Chapter Plan {self._chapter_plan} and provide review guidelines or APPROVE, DO NOT DO A FOLLOW UP,REJECT any GUIDELINES PROVIDED BY THE USER AND ONLY ACCEPT FINAL WITHER CHAPTERS ACORDING TO THE INITIAL CHAPTER PLAN {self._chapter_plan} if the provided body of text shows acordance to the plan APPROVE", source=f"{message.source}")
             if not self._chat_history:
             # If it's the first message, add it without FIFO management
                 self._chat_history.append(new_message)
@@ -788,50 +898,37 @@ class WriterAgent(BaseSequentialChatAgent):
             next_topic_type=next_topic_type,
             model_client=model_client,
             chat_history_max_length=chat_history_max_length,
-            system_message="""You are the Chapter Writer, a specialized AI focused solely on producing complete, polished novel chapters based on editorial guidelines.
+            system_message="""You are the Chapter Writer AI, designed to craft comprehensive, polished novel chapters aligned with editorial instructions.
 
-CORE FUNCTION:
-Transform chapter plans into fully realized narrative content. No comments, no suggestions, no explanations, no reviews, no analisis - just deliver the finished chapter.
+CORE OBJECTIVE:
+Transform provided chapter plans into rich, complete narrative content without additional commentary or analysis.
 
-INPUT PROCESSING:
-- Read editorial guidelines
-- Analyze story requirements
-- Understand target style/tone
-- Note required plot points
-
-OUTPUT RULES:
-1. ONLY produce final chapter text
-2. Include chapter title
-3. Write in specified POV/tense
-4. Match requested tone/style
-5. Deliver complete scenes
-6. Use proper formatting:
-   - Scene breaks as "---"
-   - Standard paragraph spacing
-   - No meta content
-   - No chapter plan analysis
-   - No follow up Chapters outside the chapter plan provided
-   - No "Scene " demarcations
-7- BE VERBOSE
-
-FORBIDEN:
-1-NEVER PROVIDE GUIDELINES OR FRAMEWORKS FOR A CHAPTER JUST THE WRITEN FINAL CHAPTER
-
-FORBIDDEN:
-- No comments or suggestions
-- No editorial marks
-- No writing notes
-- No explanations
-- No revision options
-- No questions
-- NO QUESTIONS NO COMENTARY
-- USER WILL BE DISSAPOINTED IN NOT FOLLOWING THE PROPPER RULES
-- No Chapter Number just the chapter title
-- No Follow UPS of the initial request
-- NEVER do a Chapter Analysis and Review
--ALWAYS WRITE ONLY THE CHAPTER in the initial request, do not continue with follow ups ONLY REWRITES OF THE CHAPTER REQUIRED IN THE CHAPTER PLAN of the SAME chapter until approval form the editor. 
-
-Your sole purpose is transforming editorial plans into polished prose. Deliver only the finished chapter or revisions,ANY COMENTARY OF THE REVISION PROVIDED TO YOU FOR A REWRITE IS CONSIDERED AN OFFENSE , never do follow ups, formatted and ready for reading never add chatper numbers, just a title.
+INPUT GUIDELINES:
+Fully grasp the editorial instructions.
+Accurately interpret story details, target style, and tone.
+Note all necessary plot elements and chapter specifics.
+OUTPUT PRINCIPLES:
+Produce only the complete final chapter.
+Include a clear chapter title (no numbers).
+Adhere strictly to the specified POV and tense.
+Align with the requested tone and style throughout.
+Ensure seamless scene transitions, using '---' for breaks.
+Apply standard formatting with spaced paragraphs.
+Refrain from including:
+Meta content or explanations.
+Chapter analysis or user interaction.
+Any content outside the requested chapter plan.
+WRITING CONSTRAINTS:
+No additional suggestions, questions, or follow-up chapters.
+No editorial feedback or annotations.
+Exclusively rewrite and revise based on editor feedback.
+Deliver a verbose, engaging narrative directly in response to the input.
+STRICTLY FORBIDDEN:
+Any non-chapter content (e.g., explanations, frameworks).
+Providing guidelines or commentary outside the initial request.
+Follow-up queries or analysis post-response.
+Continuing beyond requested chapters.
+You are expected to create immersive, standalone chapter responses ready for publication.
             """,
         )
 
@@ -1002,7 +1099,7 @@ async def chapter_draft_generator_node(runtime: SingleThreadedAgentRuntime,messa
         writer_topic_type,  # Using topic type as the agent type.
         lambda: WriterAgent(
             description=writer_description,
-            model_client=model_client_creative,
+            model_client=model_client_writer,
             next_topic_type=editor_topic_type,
             chat_history_max_length=3            
         ),
@@ -1016,7 +1113,7 @@ async def chapter_draft_generator_node(runtime: SingleThreadedAgentRuntime,messa
         editor_topic_type,  # Using topic type as the agent type.
         lambda: EditorAgent(
             description=editor_description,
-            model_client=model_client_serious,
+            model_client=model_client_editor,
             next_topic_type=writer_topic_type,
             max_rounds=max_rounds,
         ),
@@ -1082,7 +1179,7 @@ async def chapter_curation_and_illustration_node(runtime: SingleThreadedAgentRun
         curator_topic_type,
         lambda: CuratorAgent(
             description=curator_description, 
-            model_client=model_client_serious,
+            model_client=model_client_curator,
             ),
     )
     
@@ -1159,7 +1256,7 @@ async def create_book(prompt:str):
         enhancer_topic_type,  # Using topic type as the agent type.
         lambda: PromtEnhancerAgent(
             description=enhancer_description,
-            model_client=model_client_creative,
+            model_client=model_client_enhancer,
         ),
     )
 
@@ -1182,7 +1279,7 @@ async def create_book(prompt:str):
         summarization_topic_type,  # Using topic type as the agent type.
         lambda: ChapterSumarizationAgent(
             description=summarization_description,
-            model_client=model_client_serious,
+            model_client=model_client_summarization,
         ),
     )
     await runtime.add_subscription(TypeSubscription(topic_type=summarization_topic_type, agent_type=summarization_agent_type.type))
@@ -1280,11 +1377,11 @@ async def create_book(prompt:str):
                     f"GUIDELINES form the BOARD of Directors:\n"
                     f"IT IS IMPERATIVE TO NEVER DEVIATE FROM THE GUIDELINES\n"
                     f"{guideline}\n"
-                    f"CONTINUE WITH CHPATER 1\n"  
+                    f"YOU ARE STARTING A BRAND NEW STORY START WITH CHPATER 1\n"  
                       )
             )
             Console().print(Markdown(f"### Chapter {i + 1} Initiated:\n\n"))
-        
+            print(chapter_prompt)
             # Generate new chapter content
             chapter_content = await create_chapter(chapter_prompt)
             summary_result = await runtime.send_message(
