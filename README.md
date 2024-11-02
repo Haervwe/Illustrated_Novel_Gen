@@ -82,18 +82,12 @@ By studying and experimenting with this project, users can gain valuable insight
 ## Running the Code
 
 
-
-Run the Application: this is cli based and ask for the promt at init, follow these instructions to run it with ollama
-
 ## How to Clone the Repository and Run the Project
 
 To start using the *Illustrated Novel Generation with Autogen Core* project, follow these clear and concise steps:
 
-bash
-Copy code
-## How to Clone the Repository and Run the Project
+Note : For the moment, this is cli based only and ask for the prompt at init, follow these instructions to run it with ollama:
 
-To start using the *Illustrated Novel Generation with Autogen Core* project, follow these clear and concise steps:
 
 ### 1. Clone the Repository
 

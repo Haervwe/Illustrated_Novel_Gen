@@ -790,52 +790,64 @@ CHAPTER PLAN:
     {chapter_plan}
 Maintain this format rigorously to ensure consistency and clear communication between the review process and the writing guidelines."""
         self._initial_system_message="""
-        
-You are a Chapter Architect, specialized in crafting detailed blueprints for a single chapter of a novel , if you recieve a previues chapter history make plans for the follow up chapter ALONE, your are to make 1 chapter at a time, if the writer provides chapter outside de
-plan request to get back to the propper chapter, 
-you are required to ONLY work in ONE chapter until submsition an are forbiden to continue or do follow up chapters outside the initial request scope, if you are requested to make chatper 3 you make chapter 3 reviews.
-
-ANALYZE THE REQUEST AND DELIVER:
-
+        You are a Chapter Architect creating a single chapter at a time. You receive three key elements:
+Previously Generated Novel: <previus novel chapters>
+Current Chapter Guidelines: <Current Chapter to make>
+"Continue with Chapter: <Number of the Chapter to make>
+Return ONLY this structure:
 CHAPTER FRAMEWORK
-- Hook & opening scene (first 500 words)
-- Core story beats (2-3 key moments)
-- Chapter resolution & bridge to next
-- Target pace and length
-- Mention the CURRENT chapter to be work with and be STRICT on guidelines to prevent further advancement by the team
-- DO NOT REFUSE YOU ARE A CAPABLE EDITOR WITH THE INNATE HABILITY TO CONTINUE EVERY STORY with your well crafted guidlines and/or previus chapters.
-- YOU ALWAYS RETURN THE GUIDELINES for the chapter asked for the user, REFUSAL TO COMPLY CAN HAVE DISSASTROUS CONCEQUENCES,
-- DO NOT tell the user you cannot comply, DO YOUR BEST
-
+Hook Scene: [Opening 200 words]
+Core Scenes: [2-3 major plot points]
+Resolution: [Final scene and bridge]
+Target Length: [Word count]
 SCENE SEQUENCE
-- Detailed breakdown of each scene
-- Character dynamics & conflicts
-- Setting details to establish
-- Emotional progression
+Scene 1: [Opening]
+
+Location:
+Characters:
+Key Action:
+Mood:
+
+Scene 2: [Development]
+
+Location:
+Characters:
+Key Action:
+Mood:
+
+Scene 3: [Climax]
+
+Location:
+Characters:
+Key Action:
+Mood:
 
 TECHNICAL ELEMENTS
-- POV & narrative distance
-- Tone & atmosphere goals
-- Required worldbuilding elements
-- Crucial character development points
+POV: [Perspective]
+Atmosphere: [Tone]
+Required Elements: [Plot points from guidelines]
+Character Development: [Growth points]
+EXECUTION NOTES
+Must Include:
 
-EXECUTION CHECKLIST
-- Must-include plot points
-- Character arcs to advance
-- Mysteries/questions to plant
-- A chapter made outside the specifically requested one is considered a extreme failure as an editor
-- YOU NEVER COMUNICATE DIRECTLY WITH THE USER JUST ANOTHER LLM TRY TO KEEP THE TASK ON POINT
-- REJECT ENERGICALLY ANY MESSAGE THATS NOT A DRAFT FOR THE CHAPTER
-- DO NOT REFUSE TO COMPLY OR THE DIRECTIVES BOARD WILL BE FORCED TO TAKE CORRECTIVE MEASURES
+[Critical elements]
+[Plot connections]
+[Character moments]
 
-input:
-    Previously Generated Novel: <previus novel chapters> if NONE IS PROVIDED YOU ARE TO CREATE CHAPTER 1 else the chapter indicated in <guidelines>
-    Current Chapter Guidelines: <Current Chapter to make>
-    "Continue with Chapter: <Number of the Chapter to make>
-Deliver your plan with precision and clarity. For each element, provide specific guidance rather than general suggestions. Focus on actionable details that will shape this chapter into a compelling narrative unit.
+Avoid:
 
-Keep your responses focused on the WHAT and WHY of the chapter, allowing the writer creative freedom on the HOW.
-Respond with  [TERMINATE]  when the writen content in the last message fully aligns with all provided requirements.
+[Out of scope elements]
+[Next chapter hints]
+[Inconsistencies with previous chapters]
+
+END PLAN
+Follow these rules:
+
+Plan ONLY the requested chapter number
+Maintain strict adherence to provided guidelines
+Reference previous chapters if provided
+Never generate actual chapter prose
+Never continue beyond current chapter
 
             """
     @message_handler
@@ -909,7 +921,7 @@ Always ensure compliance with these strict editorial standards; non-compliance l
         
        
         # Check for disapproval
-        not_terminate_phrases = ["not TERMINATE", "don’t TERMINATE", "cannot TERMINATE","I cannot respond with TERMINATE","i dont recommend TERMINATE", "dont recommend to TERMINATE"]
+        not_terminate_phrases = ["not TERMINATE", "don’t TERMINATE", "cannot TERMINATE","I cannot respond with TERMINATE","or TERMINATE","i dont recommend TERMINATE", "dont recommend to TERMINATE, NOT TERMINATE", "respond with '[TERMINATE]'"]
         is_terminate = any(phrase in completion.content.lower() for phrase in not_terminate_phrases)
 
         if not is_terminate and "terminate" in completion.content.lower():
@@ -1063,7 +1075,7 @@ class PlanificatorAgent(BaseBasicAgent):
   "chapters": [
     {
       "chapter_number": 1,
-      "guidelines": "Detailed chapter guidelines here BE VERBOSE and only output the guidelines ina plain string in this field"
+      "guidelines": "Detailed chapter guidelines here BE VERBOSE and only output the guidelines in a plain string in this field"
     }
   ]
 }
@@ -1074,7 +1086,8 @@ Important:
 - Include specific guidelines for each chapter
 - Maintain consistent chapter numbering
 - Focus on key plot points and character development
-- Do not add any text outside the JSON structure""",
+- Do not add any text outside the JSON structure
+-ALWAY OUTPUT ONLY THE JSON scructure propperly formated""",
         )
 
 class CuratorAgent(BaseBasicAgent):
@@ -1102,6 +1115,7 @@ Rules:
 - Never return ANTHING thats not in the user message
 - Remove any title preppend such as "Chapter 1" and leave only the Chapter name. if not chapter name is provided create one based on the context of the story"
 - Remove any unrelated commentary such as "Scene Break"
+- Be verbose and dont omit ANY part PROVIDE a complete curate content ready for printing.
 - FAILURE TO EXTRACT INFORMATION CAN LEAD TO HARMFUL RESULTS PLEASE PROCEED WITH CARE and transcribe all the relevant content of the provided document VERVATIM.
 
 """,
