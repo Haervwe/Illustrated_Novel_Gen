@@ -1,4 +1,4 @@
-autogen_core==0.0.2
+autogen-core==0.4.0.dev3
 autogen_ext==0.0.1
 ipython==8.12.3
 Pillow==11.0.0

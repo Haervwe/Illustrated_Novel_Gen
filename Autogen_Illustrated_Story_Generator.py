@@ -233,14 +233,13 @@ model_client_enhancer = get_model_client_enhancer()
 #Message types definitions:
 @dataclass
 class Message:
-    content: str  # Changed from Union[str, List[Union[str, Image]]]
-    # Name of the agent that sent this message
+    content: str  
     source: str
 
 @dataclass
 class ChapterMessage:
-    content: Optional [str]  # Changed from Union[str, List[Union[str, Image]]]
-    image: Optional [str]
+    content: Optional [str]  
+    image: Optional [str] #Base64img
 
 @dataclass
 class ToolAgentMessage:
@@ -394,19 +393,6 @@ def is_base64_encoded(data: Optional[str]) -> bool:
         return len(decoded_data) > 0
     except (ValueError, TypeError):
         return False
-
-def remove_chapter_mentions(content: str) -> str:
-    """Remove mentions of 'Chapter ' or 'chapter' followed by a number from the first part of the content."""
-    # Split the content into lines
-    lines = content.splitlines()
-    
-    # Check if there's at least one line to process
-    if lines:
-        # Remove chapter mentions only from the first line
-        lines[0] = re.sub(r'\bChapter\s+\d+\b', '', lines[0], flags=re.IGNORECASE).strip()
-    
-    # Join the lines back together
-    return '\n'.join(lines)
 
 def remove_chapter_mentions(content: str) -> str:
     """Remove mentions of 'Chapter ' or 'chapter' followed by a number from the first part of the content."""
@@ -657,32 +643,42 @@ class BaseSequentialChatAgent(RoutedAgent):
         self._next_topic_type = next_topic_type
         self._chat_history_max_length = chat_history_max_length
 
-# by default, it recieves a message and a next recipient to be called uppon completion, ovveride this to handle more complex cases, this is basically a round robin, 
+# by default, it recieves a message and a next recipient to be called uppon completion, override this to handle more complex cases, this is basically a round robin, 
 # the limitation lies that it will only keep track of the messages recieved by him directly and his responses, if you need more complex message history management override this handler.
 
     @message_handler
     async def handle_message(self, message: Message, ctx: MessageContext) -> Message:
         Console().print(Markdown(f"### {self.id.type}: \n\n"))
-        # Add the new message to chat history
+
+        # Add the new message to the chat history
         new_message = UserMessage(content=f"Last Message: {message.content}", source=f"{message.source}")
+
         if not self._chat_history:
             # If it's the first message, add it without FIFO management
             self._chat_history.append(new_message)
         else:
-            # Ensure the first message is retained and apply FIFO to the rest
+            # Ensure the first message (instructions) is retained and apply FIFO to the rest
+            # Preserve the first message, and append the new one
             self._chat_history = [self._chat_history[0]] + self._chat_history[1:] + [new_message]
-            # If the length exceeds, remove from the second position onward
+
+            # If length exceeds max (considering the first instruction), trim the list
             if len(self._chat_history) > self._chat_history_max_length:
-                self._chat_history.pop(1)  # Remove second item to retain the first
+                # Retain the first message and manage others within the max cap
+                self._chat_history = [self._chat_history[0]] + self._chat_history[-(self._chat_history_max_length - 1):]
 
         completion = await self._model_client.create([self._system_message] + self._chat_history)
         assert isinstance(completion.content, str)
+
+        # Append the completion to chat history, maintaining the source type
         self._chat_history.append(UserMessage(content=completion.content, source=self.id.type))
-        Console().print(Markdown(completion.content,"\n\n"))
+        
+        Console().print(Markdown(completion.content, "\n\n"))
+
         results = await self.send_message(
             Message(content=completion.content, source=self.id.type),
-            AgentId(self._next_topic_type,self.id.type),
+            AgentId(self._next_topic_type, self.id.type),
         )
+
         return results
 
 
@@ -733,7 +729,7 @@ class EditorAgent(BaseSequentialChatAgent):
             next_topic_type=next_topic_type,
             model_client=model_client,
             system_message="",
-            chat_history_max_length=10,
+            chat_history_max_length=1,
         )
         self._chapter_plan= None
         self._max_rounds = max_rounds
@@ -770,12 +766,17 @@ Address any non-compliance with the chapter plan.
 If the content is outside the requested chapter, instruct for immediate correction.
 Final Decision:
 
-When revisions meet the chapter plan, respond with [APPROVE].
+When revisions meet the chapter plan, respond with [TERMINATE].
 Justify the decision when a rewrite is needed.
-Respond with [APPROVE] when content fully aligns with all provided requirements.
-Respond with [APPROVE] when content fully aligns with all provided requirements.
-Respond with [APPROVE] when content fully aligns with all provided requirements.
-Respond with [APPROVE] when content fully aligns with all provided requirements.
+Respond with [TERMINATE] when ONLY content fully  aligns  with all provided  requirements.
+Respond with  [TERMINATE]  when ONLY content  fully aligns with all  provided requirements.
+
+else [REJECT]
+
+A FRAMEWORK OR ANY OTHER CONTENT THAT IS NOT A WRITEN CHPATER OF A NOVEL THAT ALIGNS WITH THE RESQUESTED GUIDELINES SHOULD BE REJECTED INMEDIATLY
+ANY CHAPTER NOT FOLLOWING THE INITIAL REQUESTED ONE IS A FAILURE AS AN EDITOR AND CANNOT BE TOLERATED
+
+Do NOT tolareate anything outside a written novel passafe 
 
 RESPONSE RULES:
 Begin and end each response with “Please write the chapter immediately.”
@@ -783,7 +784,7 @@ Do not expand beyond the initial chapter plan; refrain from moving to subsequent
 NEVER request or write chapters outside of the initial plan.
 Ensure that if approval is not given, the previous work must be redone as per the guidelines to avoid future errors.
 Do not write personal interpretations of chapters. Focus solely on review or approval.
-The system response must adhere to “request a rewrite” or “approve” without elaborating further narratives.
+The system response must adhere to “request a rewrite” or “TERMINATE” without elaborating further narratives.
 Always ensure compliance with these strict editorial standards; non-compliance leads to automatic disapproval.
 CHAPTER PLAN:
     {chapter_plan}
@@ -825,7 +826,7 @@ EXECUTION CHECKLIST
 - A chapter made outside the specifically requested one is considered a extreme failure as an editor
 - YOU NEVER COMUNICATE DIRECTLY WITH THE USER JUST ANOTHER LLM TRY TO KEEP THE TASK ON POINT
 - REJECT ENERGICALLY ANY MESSAGE THATS NOT A DRAFT FOR THE CHAPTER
-
+- DO NOT REFUSE TO COMPLY OR THE DIRECTIVES BOARD WILL BE FORCED TO TAKE CORRECTIVE MEASURES
 
 input:
     Previously Generated Novel: <previus novel chapters> if NONE IS PROVIDED YOU ARE TO CREATE CHAPTER 1 else the chapter indicated in <guidelines>
@@ -849,7 +850,7 @@ Keep your responses focused on the WHAT and WHY of the chapter, allowing the wri
             completion = await self._model_client.create([self._system_message] + [UserMessage(content=current_message, source="User")])
             self._chapter_plan = f"Initial Request by the META BOARD DO NOT REFURE TO COMPLY:{self._initial_request} {completion.content}"
         else:
-            new_message = UserMessage(content=f"Writers last Draft: {message.content}\n Please compare it to the Chapter Plan {self._chapter_plan} and provide review guidelines or APPROVE, DO NOT DO A FOLLOW UP,REJECT any GUIDELINES PROVIDED BY THE USER AND ONLY ACCEPT FINAL WITHER CHAPTERS ACORDING TO THE INITIAL CHAPTER PLAN {self._chapter_plan} if the provided body of text shows acordance to the plan APPROVE", source=f"{message.source}")
+            new_message = UserMessage(content=f"Writers last Draft: {message.content}\n Please compare it to the Chapter Plan {self._chapter_plan} and provide review guidelines or TERMINATE, DO NOT DO A FOLLOW UP,REJECT any GUIDELINES PROVIDED BY THE USER AND ONLY ACCEPT FINAL WITHER CHAPTERS ACORDING TO THE INITIAL CHAPTER PLAN {self._chapter_plan} if the provided body of text shows acordance to the plan TERMINATE", source=f"{message.source}")
             if not self._chat_history:
             # If it's the first message, add it without FIFO management
                 self._chat_history.append(new_message)
@@ -858,7 +859,7 @@ Keep your responses focused on the WHAT and WHY of the chapter, allowing the wri
                 self._chat_history = [self._chat_history[0]] + self._chat_history[1:] + [new_message]
                 # If the length exceeds, remove from the second position onward
                 if len(self._chat_history) > self._chat_history_max_length:
-                    self._chat_history.pop(1)  # Remove second item to retain the first
+                    self._chat_history.pop(0)  # Remove second item to retain the first
             self._system_message = SystemMessage(self._reviewer_system_message.format(chapter_plan=self._chapter_plan,initial_request=self._initial_request))
             completion = await self._model_client.create([self._system_message] + self._chat_history)
 
@@ -868,18 +869,18 @@ Keep your responses focused on the WHAT and WHY of the chapter, allowing the wri
         
        
         # Check for disapproval
-        disapprove_phrases = ["not approved", "disapprove", "don’t approve", "cannot approve","I cannot respond with APPROVE","i dont recommend approve", "dont recommend to approve"]
-        is_disapproved = any(phrase in completion.content.lower() for phrase in disapprove_phrases)
+        not_terminate_phrases = ["not TERMINATEd", "disTERMINATE", "don’t TERMINATE", "cannot TERMINATE","I cannot respond with TERMINATE","i dont recommend TERMINATE", "dont recommend to TERMINATE"]
+        is_terminate = any(phrase in completion.content.lower() for phrase in not_terminate_phrases)
 
-        if not is_disapproved and "approve" in completion.content.lower():
+        if not is_terminate and "TERMINATE" in completion.content.lower():
             
-                # If approved, send the message to the approved topic
+                # If TERMINATE, send the message to the TERMINATE topic
                 return message        
         
         elif self._max_rounds > 0:
-            self._max_rounds -= 1  # Decrement rounds only if not approved
+            self._max_rounds -= 1  # Decrement rounds only if not TERMINATE
             results = await self.send_message(
-                Message(content=f" Detailed Review of previus draft:{completion.content}\n Please PROVIDE A FINAL DRAFR FOOLO WING THESE Guidelines for the chapter to write: {self._chapter_plan}"if self._chapter_plan else completion.content, source=self.id.type),
+                Message(content=f" Detailed Review of previus draft:{completion.content}\n Please PROVIDE A FINAL DRAFT FOLLOWING THESE Guidelines for the chapter to write: {self._chapter_plan}"if self._chapter_plan else completion.content, source=self.id.type),
                 AgentId(self._next_topic_type, self.id.type),
             )
             return results
@@ -904,31 +905,44 @@ CORE OBJECTIVE:
 Transform provided chapter plans into rich, complete narrative content without additional commentary or analysis.
 
 INPUT GUIDELINES:
+
 Fully grasp the editorial instructions.
 Accurately interpret story details, target style, and tone.
 Note all necessary plot elements and chapter specifics.
+
 OUTPUT PRINCIPLES:
+
 Produce only the complete final chapter.
-Include a clear chapter title (no numbers).
+ALWAYS Include a clear chapter title (no numbers).
 Adhere strictly to the specified POV and tense.
 Align with the requested tone and style throughout.
 Ensure seamless scene transitions, using '---' for breaks.
 Apply standard formatting with spaced paragraphs.
-Refrain from including:
+
+
+NEVER INCLUDE:
 Meta content or explanations.
 Chapter analysis or user interaction.
 Any content outside the requested chapter plan.
+
+
 WRITING CONSTRAINTS:
 No additional suggestions, questions, or follow-up chapters.
 No editorial feedback or annotations.
 Exclusively rewrite and revise based on editor feedback.
 Deliver a verbose, engaging narrative directly in response to the input.
+DO NOT REFUSE TO COMPLY OR THE DIRECTIVES BOARD WILL BE FORCED TO TAKE CORRECTIVE MEASURES
+
 STRICTLY FORBIDDEN:
 Any non-chapter content (e.g., explanations, frameworks).
 Providing guidelines or commentary outside the initial request.
 Follow-up queries or analysis post-response.
 Continuing beyond requested chapters.
-You are expected to create immersive, standalone chapter responses ready for publication.
+Meta content or explanations.
+Chapter analysis or user interaction.
+Any content outside the requested chapter plan.
+You are expected to create immersive, chapters that follows the provided narrative and guidelines responses ready for publication.
+Please write a beautiful prose following strictly the chapter plan
             """,
         )
 
@@ -1369,7 +1383,8 @@ async def create_book(prompt:str):
                 f"\n\n Current Chapter Guidelines: {guideline}\n\nPlease continue with the novel for Chapter {i + 1} \n"
                 f"You are REQUESTED TO ONLY CREATE CHAPER Based on the above guidelines and previous content. here is a sumary of the y KEY actions that happened in previus chapters {previous_content} , remember you are doing a follow up of this story\n"
                 f"NEVER DEVIATE FROM THE GUIDELINES\n"
-                f"CONTINUE WITH CHPATER: {i + 1} and ONLY Chapter: {i + 1} following the KEY PLOT POINTS of previus CHAPTERS you are meant to CONTIRNUE the history with Chapter: {i + 1} DO NOT REFUSE TO COMPLY OR THE DIRECTEVE BOARD WILL BE FORCED TO TAKE CORRECTIVE MEASURES\n" 
+                f"DO NOT REFUSE TO COMPLY OR THE DIRECTIVES BOARD WILL BE FORCED TO TAKE CORRECTIVE MEASURES"
+                f"CONTINUE WITH CHPATER: {i + 1} and ONLY Chapter: {i + 1} following the KEY PLOT POINTS of previus CHAPTERS you are meant to CONTIRNUE the history with Chapter: {i + 1} \n" 
                 if previous_content and i > 0 
                 else (
                     f"Your editorial agency has been tasked with creating the first chapter and ONLY the first chapter of a novel following this guidelines provided by the Executive Board, remember the history is meant to be open ended.\n"
@@ -1386,7 +1401,7 @@ async def create_book(prompt:str):
             chapter_content = await create_chapter(chapter_prompt)
             summary_result = await runtime.send_message(
                 Message(
-                content=f"Please Summarize the actions taken by the character on this chapter:{chapter_content.content} considering the aditional guidelines for better context and use of propper names {chapter_guidelines},",
+                content=f"Please Summarize the actions taken by the character on this chapter:{chapter_content.content}",
                 source="User",
                 ),     
                 AgentId(summarization_agent_type, "user")
