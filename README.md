@@ -81,7 +81,71 @@ By studying and experimenting with this project, users can gain valuable insight
 
 ## Running the Code
 
-TODO
 
-Run the Application: Follow the specific instructions within the codebase to start the application and provide your inspiring story prompt. Let the creative exploration begin!
+
+Run the Application: this is cli based and ask for the promt at init, follow these instructions to run it with ollama
+
+## How to Clone the Repository and Run the Project
+
+To start using the *Illustrated Novel Generation with Autogen Core* project, follow these clear and concise steps:
+
+bash
+Copy code
+## How to Clone the Repository and Run the Project
+
+To start using the *Illustrated Novel Generation with Autogen Core* project, follow these clear and concise steps:
+
+### 1. Clone the Repository
+
+Use `git` to clone the project repository onto your local machine:
+
+```bash
+git clone https://github.com/Haervwe/Illustrated_Novel_Gen.git
+```
+Navigate into the project directory:
+
+```bash
+cd Illustrated_Novel_Gen
+```
+2. Set Up a Virtual Environment
+Setting up a virtual environment ensures that the dependencies for this project don't interfere with other Python projects on your system.
+
+For Windows:
+
+```bash
+python -m venv venv
+.\venv\Scripts\activate
+```
+For Linux:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+3. Install Dependencies
+Install the necessary Python packages listed in the requirements.txt file:
+
+```bash
+pip install -r requirements.txt
+```
+Note: Ensure your virtual environment is activated before running this command.
+
+4. Install Ollama
+Ollama is used to run local LLMs. Install Ollama by following the installation guide provided on the Ollama website. Once installed, load the necessary model:
+
+```bash
+ollama run llama3.1:latest
+```
+5. Run the Main Application File
+Start the novel generation process by running the main Python script:
+
+```bash
+python Autogen_Illustrated_Story_Generator.py
+```
+6. Input Your Story Prompt
+
+Follow the prompts in the terminal to input your initial story idea and watch the system generate chapters and illustrations, be patient it can take some time.
+
+With these steps completed, you're ready to explore the potential of agentic workflows for creative writing and illustrated novel generation!
 

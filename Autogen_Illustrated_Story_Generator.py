@@ -723,7 +723,7 @@ class BaseBasicAgent(RoutedAgent):
 #these agents are constructed to participate in a ciclical conversation trying to improve the writers work until editorial aproval more agents can be added but: "see BaseSequentialAgent TODO"
 
 class EditorAgent(BaseSequentialChatAgent):
-    def __init__(self, description: str, next_topic_type: str, model_client: ChatCompletionClient,max_rounds:int = 2) -> Message:
+    def __init__(self, description: str, next_topic_type: str, model_client: ChatCompletionClient,max_rounds:int = 10,chat_history_max_length: int=5) -> Message:
         super().__init__(
             description=description,
             next_topic_type=next_topic_type,
@@ -734,6 +734,7 @@ class EditorAgent(BaseSequentialChatAgent):
         self._chapter_plan= None
         self._max_rounds = max_rounds
         self._initial_request = None
+        self._chat_history_max_length = chat_history_max_length
         self._reviewer_system_message = """You are a Review Editor Agent, dedicated to evaluating written content against detailed original plans and guidelines.
 
 INITIAL TASK:
@@ -893,7 +894,7 @@ Keep your responses focused on the WHAT and WHY of the chapter, allowing the wri
          # Handle rounds and feedback
 
 class WriterAgent(BaseSequentialChatAgent):
-    def __init__(self, description: str, next_topic_type: str, model_client: ChatCompletionClient,chat_history_max_length:int) -> None:
+    def __init__(self, description: str, next_topic_type: str, model_client: ChatCompletionClient,chat_history_max_length:int=1) -> None:
         super().__init__(
             description=description,
             next_topic_type=next_topic_type,
@@ -1129,6 +1130,7 @@ async def chapter_draft_generator_node(runtime: SingleThreadedAgentRuntime,messa
             description=editor_description,
             model_client=model_client_editor,
             next_topic_type=writer_topic_type,
+            chat_history_max_length=3,
             max_rounds=max_rounds,
         ),
     )
@@ -1461,6 +1463,7 @@ async def create_book(prompt:str):
 
 
 async def main():
-   return await create_book("A young man enters an abandoned mine and arrives at the hollow center of the Earth, where super-intelligent giants live with organic technologies that keep the biosphere functioning in balance.")
+    prompt = input("Enter your story prompt: ")
+    return await create_book(prompt)
 
 asyncio.run(main())
