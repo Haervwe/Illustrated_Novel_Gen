@@ -1060,7 +1060,7 @@ Rules:
 - Maintain original paragraph structure and scene breaks
 - Remove ALL editorial comments, word counts, notes, and markup
 - Never return ANTHING thats not in the user message
-- Remove any title preppend such as "Chapter 1" and leave only the Chapter name. if not chapter name is provided create one based on the context for example "The Abyssal Warrior"
+- Remove any title preppend such as "Chapter 1" and leave only the Chapter name. if not chapter name is provided create one based on the context of the story"
 - Remove any unrelated commentary such as "Scene Break"
 - FAILURE TO EXTRACT INFORMATION CAN LEAD TO HARMFUL RESULTS PLEASE PROCEED WITH CARE and transcribe all the relevant content of the provided document VERVATIM.
 
@@ -1370,7 +1370,7 @@ async def create_book(prompt:str):
         try:
             # Build context from previous chapters
             previous_content = "\n\n".join(
-                f"Chapter {j + 1}:\n\n{chapter.content}" 
+                f"{chapter.content}" 
                 for j, chapter in enumerate(summary) 
                 if chapter.content is not None
             )
@@ -1388,7 +1388,7 @@ async def create_book(prompt:str):
                 if previous_content and i > 0 
                 else (
                     f"Your editorial agency has been tasked with creating the first chapter and ONLY the first chapter of a novel following this guidelines provided by the Executive Board, remember the history is meant to be open ended.\n"
-                    f"Initial Request by the client: {enhanced_prompt}\n"
+                    f"Initial Request by the client: {enhanced_prompt.content}\n"
                     f"GUIDELINES form the BOARD of Directors:\n"
                     f"IT IS IMPERATIVE TO NEVER DEVIATE FROM THE GUIDELINES\n"
                     f"{guideline}\n"
