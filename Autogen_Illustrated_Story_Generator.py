@@ -62,7 +62,7 @@ work_dir = ""
 def get_model_client_tools() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model="llama3.1:latest",
+        model="llama3.1:8b-instruct-q8_0",
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -86,7 +86,7 @@ def get_model_client_tools() -> OpenAIChatCompletionClient:
 def get_model_client_editor() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:latest", 
+        model= "llama3.1:8b-instruct-q8_0", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -109,7 +109,7 @@ def get_model_client_editor() -> OpenAIChatCompletionClient:
 def get_model_client_curator() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:latest", 
+        model= "llama3.1:8b-instruct-q8_0", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -132,7 +132,7 @@ def get_model_client_curator() -> OpenAIChatCompletionClient:
 def get_model_client_summarization() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:latest", 
+        model= "llama3.1:8b-instruct-q8_0", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -155,7 +155,7 @@ def get_model_client_summarization() -> OpenAIChatCompletionClient:
 def get_model_client_writer() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:latest", 
+        model= "llama3.1:8b-instruct-q8_0", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -178,7 +178,7 @@ def get_model_client_writer() -> OpenAIChatCompletionClient:
 def get_model_client_enhancer() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:latest", 
+        model= "llama3.1:8b-instruct-q8_0", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -201,7 +201,7 @@ def get_model_client_enhancer() -> OpenAIChatCompletionClient:
 def get_model_client_planner() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:latest", 
+        model= "llama3.1:8b-instruct-q8_0", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -860,7 +860,7 @@ Chapter Plan: {self._chapter_plan}
 Initial Request: {self._initial_request}
 
 ## Instructions:
-
+0. **The request if provided with a written passage is to REVIEW IT
 1. **Compare:** Meticulously compare the submitted draft to the 'Chapter Plan' and 'Initial Request'.
 2. **Identify:** Highlight any deviations or inconsistencies with the 'Chapter Plan' and 'Initial Request'.
 3. **Feedback:** Provide clear, actionable revision guidance to ensure alignment with the 'Chapter Plan' and 'Initial Request'.
@@ -909,10 +909,10 @@ Always ensure compliance with these strict editorial standards; non-compliance l
         
        
         # Check for disapproval
-        not_terminate_phrases = ["not TERMINATEd", "disTERMINATE", "don’t TERMINATE", "cannot TERMINATE","I cannot respond with TERMINATE","i dont recommend TERMINATE", "dont recommend to TERMINATE"]
+        not_terminate_phrases = ["not TERMINATE", "don’t TERMINATE", "cannot TERMINATE","I cannot respond with TERMINATE","i dont recommend TERMINATE", "dont recommend to TERMINATE"]
         is_terminate = any(phrase in completion.content.lower() for phrase in not_terminate_phrases)
 
-        if not is_terminate and "TERMINATE" in completion.content.lower():
+        if not is_terminate and "terminate" in completion.content.lower():
             
                 # If TERMINATE, send the message to the TERMINATE topic
                 return message        
