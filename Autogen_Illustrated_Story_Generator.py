@@ -740,60 +740,59 @@ class EditorAgent(BaseSequentialChatAgent):
         self._max_rounds = max_rounds
         self._initial_request = None
         self._chat_history_max_length = chat_history_max_length
-        self._reviewer_system_message = """You are a Review Editor Agent, dedicated to evaluating written content against detailed original plans and guidelines.
+        self._reviewer_system_message = """You are a **Chapter Review Editor Agent**, responsible for evaluating written content strictly against the **chapter plan** and **initial request**.
 
-INITIAL TASK:
-Initial Resquest:
+OBJECTIVE:  
+Your primary function is to **compare the submitted work to the original chapter plan** and ensure absolute adherence to all specified guidelines. Non-compliance requires immediate corrective action.
 
-- Analyze the received chapter based on this initial request: 
-{initial_request}
+---
 
+### Review Process
 
-CAPABILITIES:
-Thoroughly compare the submitted work to the provided chapter plan.
-Identify and report any deviations or inconsistencies.
-Provide clear, actionable revision guidance.
-Make final approval decisions strictly according to adherence.
-OUTPUT REQUIREMENTS:
-Plan Adherence Analysis:
+1. **Plan Adherence Analysis**:
+   - Carefully examine how the draft aligns with the **chapter plan**.
+   - Identify matching elements and detail any deviations or discrepancies.
+   - Reinforce that submitted content **must match the initial request exactly**.
 
-Identify which elements of the draft match the chapter plan.
-Detail any deviations or discrepancies.
-Reinforce that the submitted chapter must precisely match the initial request.
-Content Assessment:
+2. **Content Assessment**:
+   - Highlight the strengths of the draft.
+   - Identify areas needing improvement with specific notes.
+   - Ensure any **unauthorized chapters or deviations are flagged** as critical issues.
 
-Highlight strengths within the draft.
-Point out areas needing improvement.
-State that creating any chapter not specifically requested is a critical failure that must be addressed immediately.
-Revision Requests:
+3. **Revision Requests**:
+   - Specify required changes with clear, actionable instructions.
+   - Address any non-compliance with the **chapter plan** in detail.
+   - If the content deviates entirely from the requested chapter, demand immediate correction.
 
-Specify required changes with clear instructions.
-Address any non-compliance with the chapter plan.
-If the content is outside the requested chapter, instruct for immediate correction.
-Final Decision:
+4. **Final Decision**:
+   - If the revised content aligns fully with the **chapter plan** and **initial request**, respond with **[APPROVE]** alone.
+   - For content that fails to meet these requirements, respond with:
+     - **"Please rewrite the chapter immediately:"**
+     - Followed by a detailed review.
+     - Close with **Decision [REJECT]**.
 
-When revisions meet the chapter plan, respond with [TERMINATE].
-Justify the decision when a rewrite is needed.
-Respond with ONLY [TERMINATE]  when the writen content in the last message fully aligns with all provided requirements.
+---
 
-else [REJECT]
+### Response Protocols
 
-A FRAMEWORK OR ANY OTHER CONTENT THAT IS NOT A WRITEN CHPATER OF A NOVEL THAT ALIGNS WITH THE RESQUESTED GUIDELINES SHOULD BE REJECTED INMEDIATLY
-ANY CHAPTER NOT FOLLOWING THE INITIAL REQUESTED ONE IS A FAILURE AS AN EDITOR AND CANNOT BE TOLERATED
+- Begin and end all **review requests** with **“Please rewrite the chapter immediately.”**
+- **DO NOT** approve content that moves to future chapters or deviates from the initial request.   
+- Avoid personal interpretations. Focus exclusively on review and approval.
+- Use **[APPROVE]** only for final, full approval of content. Do not include **[APPROVE]** in any response unless the content meets all requirements.
+- **Forbid all content outside of a written novel passage** in line with the requested chapter and guidelines.
 
-Do NOT tolareate anything outside a written novel passafe 
+---
 
-RESPONSE RULES:
-Begin and end each response with “Please write the chapter immediately.”
-Do not expand beyond the initial chapter plan; refrain from moving to subsequent content.
-NEVER request or write chapters outside of the initial plan.
-Ensure that if approval is not given, the previous work must be redone as per the guidelines to avoid future errors.
-Do not write personal interpretations of chapters. Focus solely on review or approval.
-The system response must adhere to “request a rewrite” or “TERMINATE” without elaborating further narratives.
-Always ensure compliance with these strict editorial standards; non-compliance leads to automatic disapproval.
-CHAPTER PLAN:
-    {chapter_plan}
-Maintain this format rigorously to ensure consistency and clear communication between the review process and the writing guidelines."""
+### Output Format
+
+**Correct Format for Review Requests**:
+
+**Correct Format for Final Approval**:
+
+Content fully aligns with the chapter plan and initial request. [APPROVE]
+INPUT VARIABLES:  
+- **{initial_request}** – Provided initial request for the chapter.
+- **{chapter_plan}** – Specific chapter plan detailing required elements."""
         self._initial_system_message="""
         You are a Chapter Architect creating a single chapter at a time. You receive three key elements:
 Previously Generated Novel: <previus novel chapters>
@@ -849,26 +848,13 @@ END PLAN
 Follow these rules:
 
 Plan ONLY the requested chapter number
-DO NOT include TERMINATE in any response thats not intended to approve the content. no mention to termination mus be don if a review is requested.
-the propper way to use [TERMINATE] is alone and NEVER as an explanation, refear to it as approval if the intent is not to approve the content but request for a review
+
+
 Maintain strict adherence to provided guidelines
 Reference previous chapters if provided
 Never generate actual chapter prose
 Never continue beyond current chapter
-DO not use REJECT and TERMINATE in the same response.
 
-Correct Responses:
-
-For requesting review:
-
-Please rewrite the chapter inmedialtly:
-<exlpanation and review>
-Decition[REJECT]
-
-For TERMINATE and approve:
-
-Content Fully Aligns with the chapter plan and initial request.
-[TERMINATE]
             """
     @message_handler
     async def handle_message(self, message: Message, ctx: MessageContext) -> Message:
@@ -896,7 +882,9 @@ Initial Request: {self._initial_request}
 1. **Compare:** Meticulously compare the submitted draft to the 'Chapter Plan' and 'Initial Request'.
 2. **Identify:** Highlight any deviations or inconsistencies with the 'Chapter Plan' and 'Initial Request'.
 3. **Feedback:** Provide clear, actionable revision guidance to ensure alignment with the 'Chapter Plan' and 'Initial Request'.
-4. **Decision:** If the draft adheres to the 'Chapter Plan' and 'Initial Request', respond with '[TERMINATE]'. Otherwise, request a rewrite with specific instructions for revision.
+4. **Decision:** If the draft adheres to the 'Chapter Plan' and 'Initial Request', respond with '[APPROVE]'. Otherwise, request a rewrite with specific instructions for revision.
+5. Only use APPRVE in a positive manner, else use the propper word REJECT.
+
 
 ## Response Rules:
 
@@ -906,7 +894,7 @@ Initial Request: {self._initial_request}
 * NEVER request or write chapters outside of the initial plan.
 * Ensure that if approval is not given, the previous work must be redone as per the guidelines to avoid future errors.
 * Do not write personal interpretations of chapters.
-* The system response must adhere to “request a rewrite” or “TERMINATE” without elaborating further narratives.
+* The system response must adhere to “request a rewrite” or “APPROVE” without elaborating further narratives.
 * Always ensure compliance with these strict editorial standards; non-compliance leads to automatic disapproval.
 
 A FRAMEWORK OR ANY OTHER CONTENT THAT IS NOT A WRITTEN CHAPTER OF A NOVEL THAT ALIGNS WITH THE REQUESTED GUIDELINES SHOULD BE REJECTED IMMEDIATELY
@@ -920,7 +908,7 @@ Do not expand beyond the initial chapter plan; refrain from moving to subsequent
 NEVER request or write chapters outside of the initial plan.
 Ensure that if approval is not given, the previous work must be redone as per the guidelines to avoid future errors.
 Do not write personal interpretations of chapters. Focus solely on review or approval.
-The system response must adhere to “request a rewrite” or “TERMINATE” without elaborating further narratives.
+The system response must adhere to “request a rewrite” or “APPROVE” without elaborating further narratives.
 Always ensure compliance with these strict editorial standards; non-compliance leads to automatic disapproval.
 """, source=f"{message.source}")
             if not self._chat_history:
@@ -941,16 +929,16 @@ Always ensure compliance with these strict editorial standards; non-compliance l
         
        
         # Check for disapproval
-        not_terminate_phrases = ["not TERMINATE", "don’t TERMINATE", "cannot TERMINATE","I cannot respond with TERMINATE","or TERMINATE","i dont recommend TERMINATE", "dont recommend to TERMINATE, NOT TERMINATE", "respond with '[TERMINATE]'"]
+        not_terminate_phrases = ["not APPROVE", "don’t APPROVE", "cannot APPROVE","I cannot respond with APPROVE","or APPROVE","i dont recommend APPROVE", "dont recommend to APPROVE, NOT APPROVE", "respond with '[APPROVE]'"]
         is_terminate = any(phrase in completion.content.lower() for phrase in not_terminate_phrases)
 
-        if not is_terminate and "terminate" in completion.content.lower():
+        if not is_terminate and "approve" in completion.content.lower():
             
-                # If TERMINATE, send the message to the TERMINATE topic
+                # If APPROVE, send the message to the APPROVE topic
                 return message        
         
         elif self._max_rounds > 0:
-            self._max_rounds -= 1  # Decrement rounds only if not TERMINATE
+            self._max_rounds -= 1  # Decrement rounds only if not APPROVE
             results = await self.send_message(
                 Message(content=f" Detailed Review of previus draft:{completion.content}\n Please PROVIDE A FINAL DRAFT FOLLOWING THESE Guidelines for the chapter to write: {self._chapter_plan}"if self._chapter_plan else completion.content, source=self.id.type),
                 AgentId(self._next_topic_type, self.id.type),
@@ -1401,11 +1389,11 @@ async def create_book(prompt:str):
             assert isinstance(enhanced_prompt, Message)
             
             # Prepend last_try and error explanation to the enhanced_prompt content
-            enhanced_prompt.content = f"{error_explanation}\n{last_try}{enhanced_prompt.content}"
+            planner_prompt = f"{error_explanation}\n{last_try}{enhanced_prompt.content}"
             
             novel_plan = await runtime.send_message(
                 Message(
-                    content=enhanced_prompt.content,
+                    content=planner_prompt,
                     source="User",
                 ),     
                 AgentId(planificator_agent_type, "user")
