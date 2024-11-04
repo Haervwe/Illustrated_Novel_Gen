@@ -62,7 +62,7 @@ work_dir = ""
 def get_model_client_tools() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model="llama3.1:8b-instruct-q8_0",
+        model="llama3.1_8b_q4_16k:latest",
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -77,8 +77,8 @@ def get_model_client_tools() -> OpenAIChatCompletionClient:
             "stream": False,  # Set to True if streaming is needed
             "frequency_penalty": 0.1,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.1, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 128000,
-            "keep_alive": 0,
+            "max_tokens": 8000,
+            "lowvram": False,
         },
        token_limit=128000
     )
@@ -86,7 +86,7 @@ def get_model_client_tools() -> OpenAIChatCompletionClient:
 def get_model_client_editor() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:8b-instruct-q8_0", 
+        model= "llama3.1_8b_q4_16k:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -101,7 +101,8 @@ def get_model_client_editor() -> OpenAIChatCompletionClient:
             "stream": False,  # Set to True if streaming is needed
             "frequency_penalty": 0.4,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.3, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 6000
+            "max_tokens": 6000,
+            "lowvram": False,
         },
         token_limit=128000
     )
@@ -109,7 +110,7 @@ def get_model_client_editor() -> OpenAIChatCompletionClient:
 def get_model_client_curator() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:8b-instruct-q8_0", 
+        model= "llama3.1_8b_q4_16k:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -124,7 +125,8 @@ def get_model_client_curator() -> OpenAIChatCompletionClient:
             "stream": False,  # Set to True if streaming is needed
             "frequency_penalty": 0.2,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.1, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 4000
+            "max_tokens": 4000,
+            "lowvram": False,
         },
         token_limit=128000
     )
@@ -132,7 +134,7 @@ def get_model_client_curator() -> OpenAIChatCompletionClient:
 def get_model_client_summarization() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:8b-instruct-q8_0", 
+        model= "llama3.1_8b_q4_16k:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -147,7 +149,8 @@ def get_model_client_summarization() -> OpenAIChatCompletionClient:
             "stream": False,  # Set to True if streaming is needed
             "frequency_penalty": 0.5,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.2, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 1500
+            "max_tokens": 1500,
+            "lowvram": False,
         },
         token_limit=128000
     )
@@ -155,7 +158,7 @@ def get_model_client_summarization() -> OpenAIChatCompletionClient:
 def get_model_client_writer() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:8b-instruct-q8_0", 
+        model= "llama3.1_8b_q4_16k:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -170,7 +173,8 @@ def get_model_client_writer() -> OpenAIChatCompletionClient:
             "stream": False,  # Set to True if streaming is needed
             "frequency_penalty": 0.5,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.3, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 8000
+            "max_tokens": 8000,
+            "lowvram": False,
         },
         token_limit=128000
     )
@@ -178,7 +182,7 @@ def get_model_client_writer() -> OpenAIChatCompletionClient:
 def get_model_client_enhancer() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:8b-instruct-q8_0", 
+        model= "llama3.1_8b_q4_16k:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -193,7 +197,8 @@ def get_model_client_enhancer() -> OpenAIChatCompletionClient:
             "stream": False,  # Set to True if streaming is needed
             "frequency_penalty": 0.6,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.4, # Penalizes presence of earlier tokens (0.0 to 2.0)
-            "max_tokens": 3000
+            "max_tokens": 3000,
+            "lowvram": False,
         },
         token_limit=128000
     )
@@ -201,7 +206,7 @@ def get_model_client_enhancer() -> OpenAIChatCompletionClient:
 def get_model_client_planner() -> OpenAIChatCompletionClient:
     "Mimic OpenAI API using Local LLM Server."
     return OpenAIChatCompletionClient(
-        model= "llama3.1:8b-instruct-q8_0", 
+        model= "llama3.1_8b_q4_16k:latest", 
         api_key="NotRequiredSinceWeAreLocal",
         base_url="http://127.0.0.1:11434/v1",
         model_capabilities={
@@ -217,7 +222,7 @@ def get_model_client_planner() -> OpenAIChatCompletionClient:
             "frequency_penalty": 0.5,  # Penalizes frequent tokens (0.0 to 2.0)
             "presence_penalty": 0.2, # Penalizes presence of earlier tokens (0.0 to 2.0)
             "max_tokens": 3000,
-            "keep_alive":10
+            "lowvram": False,
         },
         token_limit=128000
     )
@@ -769,7 +774,7 @@ Final Decision:
 
 When revisions meet the chapter plan, respond with [TERMINATE].
 Justify the decision when a rewrite is needed.
-Respond with  [TERMINATE]  when the writen content in the last message fully aligns with all provided requirements.
+Respond with ONLY [TERMINATE]  when the writen content in the last message fully aligns with all provided requirements.
 
 else [REJECT]
 
@@ -844,11 +849,26 @@ END PLAN
 Follow these rules:
 
 Plan ONLY the requested chapter number
+DO NOT include TERMINATE in any response thats not intended to approve the content. no mention to termination mus be don if a review is requested.
+the propper way to use [TERMINATE] is alone and NEVER as an explanation, refear to it as approval if the intent is not to approve the content but request for a review
 Maintain strict adherence to provided guidelines
 Reference previous chapters if provided
 Never generate actual chapter prose
 Never continue beyond current chapter
+DO not use REJECT and TERMINATE in the same response.
 
+Correct Responses:
+
+For requesting review:
+
+Please rewrite the chapter inmedialtly:
+<exlpanation and review>
+Decition[REJECT]
+
+For TERMINATE and approve:
+
+Content Fully Aligns with the chapter plan and initial request.
+[TERMINATE]
             """
     @message_handler
     async def handle_message(self, message: Message, ctx: MessageContext) -> Message:
